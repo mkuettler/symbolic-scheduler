@@ -10,12 +10,6 @@
 #define IFOUT if (0)
 #define OUT IFOUT std::cout
 
-static std::array<std::atomic<int>, 1000> case1_count;
-static std::array<std::atomic<int>, 1000> case2_count;
-static std::array<std::atomic<int>, 1000> case3_jobpart_count;
-static std::array<std::atomic<int>, 1000> case3_nojobpart_count;
-static std::array<std::atomic<int>, 1000> case1and3_nojobpart_count;
-
 std::vector<std::unique_ptr<Job>> job_parts;
 
 Semaphore SymbolicScheduler::sem(0);
@@ -24,27 +18,6 @@ std::mutex SymbolicScheduler::mutex;
 SymbolicScheduler *SymbolicScheduler::sim_list = nullptr;
 
 const int split_level = 26;
-
-void SymbolicScheduler::print_statistic()
-{
-	auto print_vec = [](auto&& vec) {
-		auto ep = std::find_if(vec.rbegin(), vec.rend(),
-				       [](auto&& i) {return i != 0; }).base();
-		for (auto it = vec.begin(); it != ep; ++it)
-			std::cout << std::setw(4) << *it << ", ";
-	};
-	std::cout << "Case 1:" << std::endl;
-	print_vec(case1_count);
-	std::cout << std::endl << "Case 2:" << std::endl;
-	print_vec(case2_count);
-	std::cout << std::endl << "Case 3, with jobpart:" << std::endl;
-	print_vec(case3_jobpart_count);
-	std::cout << std::endl << "Case 3, no jobpart:" << std::endl;
-	print_vec(case3_nojobpart_count);
-	std::cout << std::endl << "Case 1+3, no jobpart:" << std::endl;
-	print_vec(case1and3_nojobpart_count);
-	std::cout << std::endl;
-}
 
 void SymbolicScheduler::setJobPart(std::unique_ptr<Job> j)
 {
@@ -188,7 +161,6 @@ void SymbolicScheduler::runNextLevel(SymbolicScheduler& sim, int level)
 
 void SymbolicScheduler::run(int level)
 {
-	bool case1 = false;
         static std::string indent = "";
         IFOUT indent += " ";
         //if (level == 6)
@@ -226,8 +198,6 @@ void SymbolicScheduler::run(int level)
                 auto sim = SymbolicScheduler(sched, t1, &jobs, crit);
                 sim.removeJob(job);
                 findCritDeadlinesUpto(t1, &sim.jobs);
-		++case1_count[level];
-		case1 = true;
                 runNextLevel(sim, level);
         }
 
@@ -250,7 +220,6 @@ void SymbolicScheduler::run(int level)
                 ct1.normalize();
                 sim.setJobPart(std::make_unique<Job>(job, crit+1));
                 sim.updateJob(job, sim.jobPart.get());
-		++case2_count[level];
                 runNextLevel(sim, level);
         }
 
@@ -287,11 +256,6 @@ void SymbolicScheduler::run(int level)
                         sim.setJobPart(std::make_unique<Job>
 				       (job, time_passed, crit));
                         sim.updateJob(job, sim.jobPart.get());
-			++case3_jobpart_count[level];
-                } else {
-			++case3_nojobpart_count[level];
-			if (case1)
-				++case1and3_nojobpart_count[level];
 		}
                 runNextLevel(sim, level);
         }

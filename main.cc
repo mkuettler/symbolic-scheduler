@@ -100,7 +100,6 @@ int main(int argc, char **argv)
         }
 
         std::cout << std::endl;
-	sim.print_statistic();
         for (auto it = tasks.begin(); it != tasks.end(); ++it) {
                 double prob = 0;
                 for (auto jt =  (*it)->jobs.begin();
