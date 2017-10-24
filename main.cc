@@ -1,5 +1,5 @@
 
-#include "simulator.h"
+#include "symbolic_scheduler.h"
 #include "task.h"
 #include "scheduler.h"
 
@@ -35,13 +35,13 @@ int main(int argc, char **argv)
                                 threadnum = i+1;
 
                                 while (1) {
-                                        Simulator::psem.up();
-                                        Simulator::sem.down();
-                                        Simulator *s;
+                                        SymbolicScheduler::psem.up();
+                                        SymbolicScheduler::sem.down();
+                                        SymbolicScheduler *s;
                                         {
                                         std::lock_guard<std::mutex> lock
-                                                (Simulator::mutex);
-                                        s = Simulator::sim_list;
+                                                (SymbolicScheduler::mutex);
+                                        s = SymbolicScheduler::sim_list;
                                         if (!s) {
                                                 std::cout << "thread "
                                                           << std::this_thread
@@ -54,8 +54,8 @@ int main(int argc, char **argv)
                                                 << std::this_thread::get_id()
                                                 << " picked up work."
                                                 << std::endl;
-                                        Simulator::sim_list = \
-                                                Simulator::sim_list->
+                                        SymbolicScheduler::sim_list = \
+                                                SymbolicScheduler::sim_list->
                                                 sim_list_next;
                                         }
 					// this is not correct, but it just
@@ -77,11 +77,11 @@ int main(int argc, char **argv)
         char sc = argc > 1 ? argv[1][0] : 'd';
         Scheduler *sched = Scheduler::create(sc, tasks);
         std::cout << sched->jobs.size() << " Jobs" << std::endl;
-        Simulator sim(sched, Time(0,1), nullptr, 0);
+        SymbolicScheduler sim(sched, Time(0,1), nullptr, 0);
         sim.run(0);
 
         for (int i = 0; i < std::thread::hardware_concurrency(); ++i) {
-                Simulator::sem.up();
+                SymbolicScheduler::sem.up();
         }
         for (int i = 0; i < std::thread::hardware_concurrency(); ++i) {
                 threadpool[i].join();

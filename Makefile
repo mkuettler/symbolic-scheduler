@@ -1,6 +1,6 @@
 
 CXX ?= clang++
-CXXFLAGS = -std=c++14 -g -MMD -O1
+CXXFLAGS = -std=c++14 -g -MMD -O2
 #if $(eq CXX, clang++)
 #	CXXFLAGS += -Wall -Wmost -Werror
 #else
@@ -10,26 +10,26 @@ CXXFLAGS = -std=c++14 -g -MMD -O1
 
 LDFLAGS = -lpthread
 
-SRC_SIM = simulator.cc main.cc task.cc scheduler.cc job.cc time.cc
+SRC_SIM = simulator.cc main-simulator.cc task.cc scheduler.cc job.cc time.cc
 OBJ_SIM = $(SRC_SIM:.cc=.o)
 
-SRC_RSM = real-simulator.cc main-real-sim.cc task.cc scheduler.cc job.cc time.cc
-OBJ_RSM = $(SRC_RSM:.cc=.o)
+SRC_SYM = symbolic_scheduler.cc main.cc task.cc scheduler.cc job.cc time.cc
+OBJ_SYM = $(SRC_SYM:.cc=.o)
 
-DEPS = $(SRC_SIM:.cc=.d) $(SRC_CLD:.cc=.d) $(SRC_RSM:.cc=.d)
+DEPS = $(SRC_SIM:.cc=.d) $(SRC_SYM:.cc=.d)
 
-all: simulator realsim
+all: simulator symbolic_scheduler
 
 %.o: %.cc Makefile
 	$(CXX) $(CXXFLAGS) -c $< $(CXXLIBS) -o $@
 
 simulator: $(OBJ_SIM)
-	$(CXX) $(LDFLAGS) $(CXXFLAGS) $(CXXLIBS) $^ -o $@
-
-realsim: $(OBJ_RSM)
 	$(CXX) $(CXXFLAGS) $(CXXLIBS) $^ -o $@
 
+symbolic_scheduler: $(OBJ_SYM)
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) $(CXXLIBS) $^ -o $@
+
 clean:
-	rm -f $(OBJ_SIM) $(OBJ_RSM) simulator realsim $(DEPS)
+	rm -f $(OBJ_SIM) $(OBJ_SYM) simulator symbolic_scheduler $(DEPS)
 
 -include $(DEPS)

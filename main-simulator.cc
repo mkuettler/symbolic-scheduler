@@ -1,5 +1,5 @@
 
-#include "real-simulator.h"
+#include "simulator.h"
 #include "task.h"
 #include "scheduler.h"
 
@@ -24,7 +24,7 @@ int main(int argc, char **argv)
         int const count = 100000;
         for (int i = 0; i < count; ++i) {
                 //if (i % 1000 == 0) std::cout << i << std::endl;
-                RealSim sim(sched, 0);
+	            Simulator sim(sched, 0);
                 sim.run();
                 //std::cout << std::endl;
         }
