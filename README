@@ -1,0 +1,30 @@
+
+Compiling
+---------
+
+Just typing 'make' should work, if g++ or clang++ are installed.
+Other compilers that support C++14 should also work, but they might
+require you to adjust the Makefile.
+
+After building the two executables 'simulator' and
+'symbolic_scheduler' should be created.
+
+Use
+---
+
+To run one of the programs you need an input file that describes the
+taskset.  The format was not designed for easy writing but for easy
+parsing, but it should still be easy enough.  The first line should
+only contain the number of tasks, followed by one line per task. Each
+of these lines should contain name, period, deadine, pwcet
+distribution, and deadlines for the criticality levels.  The number of
+criticality levels gives the criticality of the task -- a LO task only
+has one deadline, a HI task has two.  The number of criticality levels
+(and thus deadlines) is not limited.  There is an example in
+tasks-example.
+
+To run symbolic_scheduler with this input type
+$ ./symbolic_scheduler <tasks-example
+
+
+
